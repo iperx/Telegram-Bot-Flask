@@ -6,12 +6,14 @@ import requests
 import json
 import re
 
-from misc import *
+from misc import TG_BOT_TOKEN
+from misc import WEATHER_API_KEY
+from task import Task
 
 app = Flask(__name__)
 sslify = SSLify(app)
-
 URL = 'https://api.telegram.org/bot{}/'.format(TG_BOT_TOKEN)
+tasks = {} # "chat_id": task
 
 
 def write_json(data, filename='answers.json'):
@@ -33,11 +35,11 @@ def parse_user_text(text):
     """Takes user message and looks for a city_name.
     Returns the city name or None.
     """
-    pattern = r'/[a-zA-Zа-яА-ЯёЁ]{1,30}[\s-]?[a-zA-Zа-яА-ЯёЁ]{,30}[\s-]?[a-zA-Zа-яА-ЯёЁ]{,30}'
-    city_name = re.search(pattern, text)
-    if city_name is not None:
-        city_name = city_name.group()[1:]
-    return city_name
+    pattern = r'^[a-zA-Zа-яА-ЯёЁ]{1,30}[\s-]?[a-zA-Zа-яА-ЯёЁ]{,30}[\s-]?[a-zA-Zа-яА-ЯёЁ]{,30}'
+    weather_query = re.search(pattern, text)
+    if weather_query is not None:
+        city_name = weather_query.group()
+        return city_name
 
 
 def get_weather(city):
@@ -62,14 +64,23 @@ def get_weather(city):
 def index():
     if request.method == 'POST':
         r = request.get_json()
-        write_json(r)
         chat_id = r['message']['chat']['id']
         message = r['message']['text']
-        pattern = r'/[a-zA-Zа-яА-ЯёЁ]{1,30}[\s-]?[a-zA-Zа-яА-ЯёЁ]{,30}[\s-]?[a-zA-Zа-яА-ЯёЁ]{,30}'
-        if re.search(pattern, message):
-            weather = get_weather(parse_user_text(message))
-            send_message(chat_id, text=weather)
 
+        if chat_id not in tasks:
+            if re.search(r'/weather', message) or re.search(r'/погода', message):
+                task = Task(chat_id, message)
+                send_message(task.chat_id, text='The weather in which city is interesting to you?')
+                tasks[task.chat_id] = task
+        else:
+            task = tasks[chat_id]
+            city = parse_user_text(message)
+            if city is not None:
+                weather = get_weather(city)
+                send_message(task.chat_id, text=weather)
+            else:
+                send_message(task.chat_id, text='Incorrect city name.')
+            tasks.pop(chat_id, None)
         return jsonify(r)
 
     return '<h1>Bot welcomes you</h1>'
