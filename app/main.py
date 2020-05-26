@@ -60,6 +60,31 @@ def get_weather(city):
         return "It's {}°C in {} currently.".format(weather, city_name)
 
 
+def get_exchange_rate():
+    url = 'https://www.cbr-xml-daily.ru/daily_json.js'
+    summary = {}
+    valutes = {
+        'AUD': 'Australian dollar', 
+        'GBP': 'Pound sterling', 
+        'USD': 'United States dollar', 
+        'EUR': 'Euro', 
+        'CAD': 'Canadian dollar', 
+        'CNY': 'Chinese Yuan Renminbi', 
+        'UAH': 'Ukrainian hryvnia', 
+        'JPY': 'Japanese yen',
+        }
+    res = requests.get(url).json()
+    for valute, info in res['Valute'].items():
+        if valute in valutes:
+            summary[valutes[valute]] = info['Value'] / info['Nominal']
+            
+    answer = 'Date: {}\n\n'.format(res['Date'].replace('T', ' '))
+    for name in sorted(summary.keys()):
+        answer += '{} = {:.2f} rub\n\n'.format(name, summary[name])
+
+    return answer.rstrip()
+
+
 @app.route('/{}/'.format(TG_BOT_TOKEN), methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
@@ -72,6 +97,9 @@ def index():
                 task = Task(chat_id, message)
                 send_message(task.chat_id, text='The weather in which city is interesting to you?')
                 tasks[task.chat_id] = task
+            elif re.search(r'/exrate', message):
+                exrate = get_exchange_rate()
+                send_message(chat_id, text=exrate)
         else:
             task = tasks[chat_id]
             city = parse_user_text(message)
