@@ -42,6 +42,6 @@ It can also translate single words en-ru/ru-en.
     python3 manage.py db migrate
     python3 manage.py db upgrade
     ```
-10. Set webhook using request like this:
+10. Set webhook using a request as follows:
 https://api.telegram.org/botYOUR_TOKEN/setWebhook?url=https://YOUR_DOMAIN/YOUR_TOKEN
-11. Launch file **bot.py** to start
+11. Launch the file **bot.py** to start
