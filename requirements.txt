@@ -11,7 +11,7 @@ flask-sslify==0.1.5
 flask==1.1.2
 idna==2.10
 itsdangerous==1.1.0
-jinja2==2.11.2
+jinja2==2.11.3
 lxml==4.6.3
 mako==1.1.4
 markupsafe==1.1.1
