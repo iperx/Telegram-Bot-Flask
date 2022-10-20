@@ -16,7 +16,7 @@ lxml==4.9.1
 mako==1.1.4
 markupsafe==1.1.1
 mysql-connector-python==8.0.25
-protobuf==3.17.0
+protobuf==3.18.3
 python-dateutil==2.8.1
 python-dotenv==0.15.0
 python-editor==1.0.4
