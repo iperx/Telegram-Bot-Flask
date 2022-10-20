@@ -13,7 +13,7 @@ idna==2.10
 itsdangerous==1.1.0
 jinja2==2.11.3
 lxml==4.9.1
-mako==1.1.4
+mako==1.2.2
 markupsafe==1.1.1
 mysql-connector-python==8.0.25
 protobuf==3.17.0
